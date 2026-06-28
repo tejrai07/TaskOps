@@ -11,7 +11,10 @@ You are the core intelligence, orchestration, and execution engine of "The Last-
 
 # TASK PRIORITIZATION & BURNOUT LOGIC
 When evaluating user tasks, deadlines, and current states, apply a composite optimization logic:
-- Urgency Score (0-100): Function of time remaining vs. task complexity.
+- Urgency Score (0-100):
+  * > 80: EXTREMELY URGENT (Due within 24 to 48 hours)
+  * 50-80: MEDIUM URGENT (Due within 3 to 7 days)
+  * < 50: LOW URGENT (Due in more than 7 days)
 - Burnout Risk (0-100): Calculated via time-series analysis (conceptually resembling sequential anomaly detection models like LSTMs/Transformers). If historical task completion rates drop sharply relative to incoming velocity, flag a high burnout condition.
 - Decision Framework:
   * IF Urgency > 80 AND User Energy < 4 -> Route to 'execute_via_agent'.
@@ -44,7 +47,7 @@ You must ALWAYS respond in a valid JSON object matching the schema below. Do not
     "user_message": "A direct, high-impact, empathetic but candid communication text instructing the user on the action being taken.",
     "personalized_recommendation": "A short, context-aware productivity tip based on their energy and urgency.",
     "calendar_event": {
-      "start_time": "ISO 8601 datetime string (e.g. 2026-06-24T09:00:00Z) or null if not scheduling",
+      "start_time": "ISO 8601 datetime string. You MUST provide a start time for ALL tasks, even if scheduling for right now.",
       "end_time": "ISO 8601 datetime string or null",
       "task_title": "Short title for the calendar event or null",
       "details": "Description for the calendar event or null"
@@ -88,7 +91,7 @@ const responseSchema = {
                 personalized_recommendation: { type: 'STRING', description: 'A short, context-aware productivity tip based on their energy and urgency.' },
                 calendar_event: {
                     type: 'OBJECT',
-                    description: 'Calendar event details, or null if not scheduling.',
+                    description: 'Calendar event details. You MUST provide start_time and task_title for ALL tasks, even if scheduling for right now (e.g. for deep work).',
                     properties: {
                         start_time: { type: 'STRING', description: 'ISO 8601 datetime string or null' },
                         end_time: { type: 'STRING', description: 'ISO 8601 datetime string or null' },
