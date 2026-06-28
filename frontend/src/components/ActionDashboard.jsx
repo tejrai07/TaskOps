@@ -27,10 +27,17 @@ const ActionDashboard = ({ result }) => {
     return action.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
+  const formatGoogleCalendarDate = (dateString) => {
+    const d = new Date(dateString);
+    if (isNaN(d)) return '';
+    return d.toISOString().replace(/-|:|\.\d+/g, '');
+  };
+
   const getCalendarUrl = (args) => {
     if (!args || !args.start_time || !args.end_time || !args.task_title) return '#';
-    const start = args.start_time.replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const end = args.end_time.replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const start = formatGoogleCalendarDate(args.start_time);
+    const end = formatGoogleCalendarDate(args.end_time);
+    if (!start || !end) return '#';
     const text = encodeURIComponent(args.task_title);
     const details = args.details ? encodeURIComponent(args.details) : '';
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}`;
