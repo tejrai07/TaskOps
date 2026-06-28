@@ -34,12 +34,23 @@ const ActionDashboard = ({ result }) => {
   };
 
   const getCalendarUrl = (args) => {
-    if (!args || !args.start_time || !args.end_time || !args.task_title) return '#';
+    if (!args || !args.start_time || args.start_time === 'null' || !args.task_title || args.task_title === 'null') return '#';
+    
     const start = formatGoogleCalendarDate(args.start_time);
-    const end = formatGoogleCalendarDate(args.end_time);
-    if (!start || !end) return '#';
+    if (!start) return '#';
+
+    let end = '';
+    if (args.end_time && args.end_time !== 'null') {
+      end = formatGoogleCalendarDate(args.end_time);
+    } else {
+      // Default to 1 hour after start if missing
+      const startDate = new Date(args.start_time);
+      startDate.setHours(startDate.getHours() + 1);
+      end = startDate.toISOString().replace(/-|:|\.\d+/g, '');
+    }
+
     const text = encodeURIComponent(args.task_title);
-    const details = args.details ? encodeURIComponent(args.details) : '';
+    const details = args.details && args.details !== 'null' ? encodeURIComponent(args.details) : '';
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}`;
   };
 
@@ -78,7 +89,7 @@ const ActionDashboard = ({ result }) => {
         </div>
       </div>
 
-      {execution_payload.calendar_event && execution_payload.calendar_event.start_time && (
+      {execution_payload.calendar_event && execution_payload.calendar_event.start_time && execution_payload.calendar_event.start_time !== 'null' && (
         <div className="calendar-section">
           <a href={getCalendarUrl(execution_payload.calendar_event)} target="_blank" rel="noreferrer" className="calendar-link">
             📅 Add to Google Calendar
